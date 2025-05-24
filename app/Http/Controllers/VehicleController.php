@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Utilities\DistanceOnlyTravelTimeEstimation;
 use Illuminate\Http\Request;
 use App\Models\Vehicle;
-
+use App\Utilities\TravelFareCalculationContext;
+use App\Utilities\TravelTimeEstimationContext;
+use App\Utilities\DistanceAndTimeBasedFareCalculation;
 class VehicleController extends Controller
 {
     public function index()
@@ -47,9 +50,22 @@ class VehicleController extends Controller
         $suitableVehicles = Vehicle::join('fuel_types', 'vehicles.fuel_type_id', '=', 'fuel_types.id')
             ->where('vehicles.passenger_capacity', '>=', $passengers)
             ->whereRaw('vehicles.range - (? * fuel_types.efficiency_ratio) >= 0', [$distance])
-            ->selectRaw('vehicles.*,  (? * fuel_types.efficiency_ratio) as range_consumption', [$distance])
+            ->selectRaw('vehicles.id, vehicles.passenger_capacity, vehicles.range, fuel_types.price_per_kilometer * (? * fuel_types.efficiency_ratio) as refueling_cost', [$distance])
             ->get();
 
-        return response()->json($suitableVehicles);
+        $suitableVehicles->transform(function (Vehicle $vehicle) use ($distance, $passengers) {
+            $travelTimeEstimationContext = new TravelTimeEstimationContext($distance, $vehicle);
+            $travelTime = DistanceOnlyTravelTimeEstimation::estimateTravelTime($travelTimeEstimationContext);
+
+            $travelFareCalculationContext = new TravelFareCalculationContext($passengers, $travelTime, $distance);
+            $fare = DistanceAndTimeBasedFareCalculation::calculateFare($travelFareCalculationContext);
+
+            $vehicle->profit = $fare - $vehicle->refueling_cost;
+            return $vehicle;
+        });
+
+        $suitableVehicles = $suitableVehicles->sortByDesc('profit');
+
+        return response()->json($suitableVehicles->values());
     }
 }
