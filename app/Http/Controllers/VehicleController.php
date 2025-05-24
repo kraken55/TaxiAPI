@@ -44,8 +44,10 @@ class VehicleController extends Controller
         $passengers = $request->input('passengers');
         $distance = $request->input('distance');
 
-        $suitableVehicles = Vehicle::where('passenger_capacity', '>=', $passengers)
-            ->where('range', '>=', $distance)
+        $suitableVehicles = Vehicle::join('fuel_types', 'vehicles.fuel_type_id', '=', 'fuel_types.id')
+            ->where('vehicles.passenger_capacity', '>=', $passengers)
+            ->whereRaw('vehicles.range - (? * fuel_types.efficiency_ratio) >= 0', [$distance])
+            ->selectRaw('vehicles.*,  (? * fuel_types.efficiency_ratio) as range_consumption', [$distance])
             ->get();
 
         return response()->json($suitableVehicles);

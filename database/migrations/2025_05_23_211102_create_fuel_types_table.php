@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->float('price_per_kilometer');
+            $table->float('efficiency_ratio');  // remaining_range = range - efficiency_ratio * travel_distance
             $table->timestamps();
         });
     }

@@ -9,6 +9,7 @@ class FuelType extends Model
     protected $fillable = [
         'name',
         'price_per_kilometer',
+        'efficiency_ratio',
     ];
 
     public function vehicles()
