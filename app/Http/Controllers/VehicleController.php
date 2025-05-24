@@ -38,4 +38,16 @@ class VehicleController extends Controller
         $vehicle->delete();
         return response()->json(null, 204);
     }
+
+    public function getSuitableVehicles(Request $request)
+    {
+        $passengers = $request->input('passengers');
+        $distance = $request->input('distance');
+
+        $suitableVehicles = Vehicle::where('passenger_capacity', '>=', $passengers)
+            ->where('range', '>=', $distance)
+            ->get();
+
+        return response()->json($suitableVehicles);
+    }
 }
