@@ -21,25 +21,47 @@ class VehicleController extends Controller
     public function show($id)
     {
         $vehicle = Vehicle::find($id);
+        if (!$vehicle)
+        {
+            return response()->json(['message' => 'Vehicle not found'], 404);
+        }
         return response()->json($vehicle);
     }
 
     public function store(Request $request)
     {
-        $vehicle = Vehicle::create($request->all());
+        $validatedData = $request->validate([
+            'passenger_capacity' => 'required|integer|min:1',
+            'range' => 'required|numeric|min:0',
+            'fuel_type_id' => 'required|exists:fuel_types,id',
+        ]);
+        $vehicle = Vehicle::create($validatedData);
         return response()->json($vehicle, 201);
     }
 
     public function update(Request $request, $id)
     {
         $vehicle = Vehicle::find($id);
-        $vehicle->update($request->all());
+        if (!$vehicle)
+        {
+            return response()->json(['message' => 'Vehicle not found'], 404);
+        }
+        $validatedData = $request->validate([
+            'passenger_capacity' => 'sometimes|required|integer|min:1',
+            'range' => 'sometimes|required|numeric|min:0',
+            'fuel_type_id' => 'sometimes|required|exists:fuel_types,id',
+        ]);
+        $vehicle->update($validatedData);
         return response()->json($vehicle);
     }
 
     public function destroy($id)
     {
         $vehicle = Vehicle::find($id);
+        if (!$vehicle)
+        {
+            return response()->json(['message' => 'Vehicle not found'], 404);
+        }
         $vehicle->delete();
         return response()->json(null, 204);
     }
