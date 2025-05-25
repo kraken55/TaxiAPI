@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\FuelTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 
 class FuelType extends Model
@@ -9,7 +10,10 @@ class FuelType extends Model
     protected $fillable = [
         'name',
         'price_per_kilometer',
-        'efficiency_ratio',
+    ];
+
+    protected $casts = [
+        'name' => FuelTypeEnum::class,
     ];
 
     public function vehicles()
