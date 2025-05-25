@@ -4,5 +4,5 @@ namespace App\Utilities;
 
 interface ITravelFareCalculationStrategy
 {
-    public static function calculateFare(TravelFareCalculationContext $context): float;
+    public function calculateFare(TravelFareCalculationContext $context): float;
 }

@@ -7,7 +7,7 @@ class DistanceAndTimeBasedFareCalculation implements ITravelFareCalculationStrat
     private const PRICE_PER_KM = 2;
     private const PRICE_PER_HALF_HOUR = 2; // 2 euros for every half hour started
 
-    public static function calculateFare(TravelFareCalculationContext $context): float
+    public function calculateFare(TravelFareCalculationContext $context): float
     {
         $passengers = $context->getPassengers();
 
