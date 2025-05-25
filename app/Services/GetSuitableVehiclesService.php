@@ -23,7 +23,7 @@ class GetSuitableVehiclesService
         $this->travelFareCalculationStrategy = $travelFareCalculationStrategy;
     }
 
-    public function findSuitableVehicles(int $passengerCount, int $distance): Collection
+    public function findSuitableVehicles(int $passengerCount, float $distance): Collection
     {
         $requiredRangeForMildHybrid = FuelTypeEnum::MILD_HYBRID->getRangeCalculationStrategy()::calculateRange($distance);
         $requiredRangeForOtherTypes = FuelTypeEnum::GASOLINE->getRangeCalculationStrategy()::calculateRange($distance); // or FuelTypeEnum::ELECTRIC->getRangeCalculationStrategy()::calculateRange($distance)

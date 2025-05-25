@@ -14,6 +14,7 @@ class FuelType extends Model
 
     protected $casts = [
         'name' => FuelTypeEnum::class,
+        'price_per_kilometer' => 'float',
     ];
 
     public function vehicles()
