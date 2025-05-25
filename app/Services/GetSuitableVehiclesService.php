@@ -3,10 +3,9 @@
 namespace App\Services;
 
 use App\Models\Vehicle;
+use App\Enums\FuelTypeEnum;
 use App\Utilities\ITravelFareCalculationStrategy;
 use App\Utilities\ITravelTimeEstimationStrategy;
-use App\Utilities\MildHybridRangeCalculationStrategy;
-use App\Utilities\StandardRangeCalculationStrategy;
 use App\Utilities\TravelTimeEstimationContext;
 use App\Utilities\TravelFareCalculationContext;
 use Illuminate\Database\Eloquent\Collection;
@@ -26,17 +25,17 @@ class GetSuitableVehiclesService
 
     public function findSuitableVehicles(int $passengerCount, int $distance): Collection
     {
-        $requiredRangeForMildHybrid = MildHybridRangeCalculationStrategy::calculateRange($distance);
-        $requiredRangeForOtherTypes = StandardRangeCalculationStrategy::calculateRange($distance);
+        $requiredRangeForMildHybrid = FuelTypeEnum::MILD_HYBRID->getRangeCalculationStrategy()::calculateRange($distance);
+        $requiredRangeForOtherTypes = FuelTypeEnum::GASOLINE->getRangeCalculationStrategy()::calculateRange($distance); // or FuelTypeEnum::ELECTRIC->getRangeCalculationStrategy()::calculateRange($distance)
 
         $suitableVehicles = Vehicle::join('fuel_types', 'vehicles.fuel_type_id', '=', 'fuel_types.id')
             ->where('vehicles.passenger_capacity', '>=', $passengerCount)
             ->where(function ($query) use ($requiredRangeForMildHybrid, $requiredRangeForOtherTypes) {
                 $query->where(function ($q) use ($requiredRangeForMildHybrid) {
-                    $q->where('fuel_types.name', 'Mild Hybrid')
+                    $q->where('fuel_types.name', FuelTypeEnum::MILD_HYBRID)
                         ->where('vehicles.range', '>=', $requiredRangeForMildHybrid);
                 })->orWhere(function ($q) use ($requiredRangeForOtherTypes) {
-                    $q->where('fuel_types.name', '!=', 'Mild Hybrid')
+                    $q->where('fuel_types.name', '!=', FuelTypeEnum::MILD_HYBRID)
                         ->where('vehicles.range', '>=', $requiredRangeForOtherTypes);
                 });
             })
@@ -76,7 +75,7 @@ class GetSuitableVehiclesService
 
     private function calculateEffectiveRange(float $theoreticalRange, string $fuelTypeName): float
     {
-        if ($fuelTypeName === 'Mild Hybrid')
+        if ($fuelTypeName === FuelTypeEnum::MILD_HYBRID)
         {
             return $theoreticalRange + (self::MILD_HYBRID_EFFECTIVE_RANGE_IMPROVEMENT_THRESHOLD * self::MILD_HYBRID_EFFECTIVE_RANGE_IMPROVEMENT_VALUE);
         }
