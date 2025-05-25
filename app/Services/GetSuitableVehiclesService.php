@@ -76,11 +76,7 @@ class GetSuitableVehiclesService
 
     private function calculateEffectiveRange(float $theoreticalRange, FuelTypeEnum $fuelType): float
     {
-<<<<<<< HEAD
         if ($fuelType === FuelTypeEnum::MILD_HYBRID)
-=======
-        if ($fuelTypeName === FuelTypeEnum::MILD_HYBRID)
->>>>>>> origin/main
         {
             return $theoreticalRange + (self::MILD_HYBRID_EFFECTIVE_RANGE_IMPROVEMENT_THRESHOLD * self::MILD_HYBRID_EFFECTIVE_RANGE_IMPROVEMENT_VALUE);
         }
