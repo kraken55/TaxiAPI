@@ -77,7 +77,7 @@ All endpoints are prefixed with `/api`.
     * Functionality: Retrieves a specific vehicle by its ID.
     * Response: `200 OK` with the vehicle data, or `404 Not Found`.
 
-* **`PATCH /vehicles/{id}`** (or `PUT`)
+* **`PATCH /vehicles/{id}`**
     * Functionality: Updates an existing vehicle.
     * Request Body (JSON): Fields to update.
         ```json
